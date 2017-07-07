@@ -1,0 +1,51 @@
+package captAna master
+
+use captRoot
+use captEvent
+use captChanInfo
+use clusterCalib
+#use detSim
+#use elecSim
+#use eventDisplay
+use testBase
+use captainPolicy 
+use ROOT * LCG_Interfaces
+
+path_prepend PATH "$(CAPTANAROOT)/$(CAPTANACONFIG)"
+
+# Build the documentation.
+#document doxygen doxygen -group=documentation *.cxx *.hxx ../doc/*.dox
+
+# Build the version file.
+# document version version *.cxx *.hxx *_LinkDef.h
+
+# Build the registration prototype.
+# document register register
+# macro_append register_dependencies " version "
+
+# Build all of the ROOT dictionaries.
+document linkdef linkdef *.hxx *_LinkDef.h
+macro_append linkdef_dependencies " register "
+
+
+# Build information used by packages that use this one.
+macro captAna_cppflags " -DCAPTANA_USED "
+macro captAna_linkopts " -L$(CAPTANAROOT)/$(captAna_tag) "
+macro_append captAna_linkopts " -L/home/captain/software/LCGCMT/2.0.3/EXTERNALS/ROOT/5.34.34/x86_64-linux-gcc44-opt/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic"
+macro_append captAna_linkopts " -lcaptAna "
+macro captAna_stamps " $(captAnastamp) $(linkdefstamp) "
+
+
+# The paths to find this library and it's executables
+path_remove LD_LIBRARY_PATH "$(CAPTANAROOT)"
+path_prepend LD_LIBRARY_PATH "$(CAPTANAROOT)/$(captAna_tag)"
+
+# Build the library for this package.
+library captAna *.cxx *.hxx $(bin)dict/*.cxx
+macro_append captAna_dependencies " linkdef "
+macro_append captAna_loadopts " -rpath-link "
+
+# Build the application for this package.
+application CAPTANA ../app/captAna.cxx
+macro_append CAPTANA_dependencies " captAna "
+
